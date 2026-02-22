@@ -1,0 +1,964 @@
+{
+  "name": "Pilot Project",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        192
+      ],
+      "id": "f29eda22-833d-464c-b052-71d3397613db",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://beledci.az/kapital-bank",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0'"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        160,
+        0
+      ],
+      "id": "2d4c54d1-00ef-4b29-b795-9fb6f977dc32",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "=comments",
+              "cssSelector": ".review-text ",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "7d96fbae-3b4f-4b95-abce-29c46eb18f81",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "comments",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        736,
+        0
+      ],
+      "id": "1853bcd5-009e-484e-8d5b-6da9837fbbcb",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1504,
+        416
+      ],
+      "id": "8e6f4861-f6d6-44c6-a719-910d32d80ae5",
+      "name": "OpenAI Chat Model",
+      "alwaysOutputData": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "AIqdqFF5Wsa9Xxgz",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.comments }}",
+        "options": {
+          "categories": "Dissatisfaction, Suggestion, Complaint, Unknown",
+          "enableAutoFixing": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+      "typeVersion": 1.1,
+      "position": [
+        1504,
+        128
+      ],
+      "id": "819e202d-1c9d-4f5b-973b-457b1eea655c",
+      "name": "Sentiment Analysis",
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "content": "## Scraper 1 (high level)\n\nWebsite: https://beledci.az/kapital-bank"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -176
+      ],
+      "id": "f5984960-3aa6-4096-84fc-c0aa1aaeda17",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "https://www.bildir.az/kapital-bank/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0'"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        144,
+        352
+      ],
+      "id": "98cc8b01-370c-4271-9d15-d040dae95e99",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "complaint_url",
+              "cssSelector": ".complaint",
+              "returnValue": "attribute",
+              "attribute": "data-target",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        352
+      ],
+      "id": "0362ee37-69ad-46f0-8a88-57b3abbfd5d6",
+      "name": "HTML1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "complaint_url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        432,
+        352
+      ],
+      "id": "330d60a8-b052-4851-946e-bbe5ecb02157",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6cfe01f5-f43a-418e-ae01-1aa201c0a6fc",
+              "name": "complaint_url",
+              "value": "=https://www.bildir.az{{ $json.complaint_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        352
+      ],
+      "id": "e6e3d031-0e03-4a32-9a0c-228cbc7f758c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.complaint_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0'"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        720,
+        352
+      ],
+      "id": "0311a176-b764-47ff-9c93-216de340117e",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "comments",
+              "cssSelector": ".complaint-text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        864,
+        352
+      ],
+      "id": "0cf1f810-1319-40bc-acb0-54c2b8e2b380",
+      "name": "HTML2"
+    },
+    {
+      "parameters": {
+        "content": "## Scraper 2 (high level)\n\nWebsite: https://www.bildir.az/kapital-bank/"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        176
+      ],
+      "id": "b5c3933e-854a-4a4b-a3ed-78d0a3abeda0",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6cfe01f5-f43a-418e-ae01-1aa201c0a6fc",
+              "name": "comments",
+              "value": "={{ $json.comments }}",
+              "type": "string"
+            },
+            {
+              "id": "c478cebe-d31f-45d8-8134-e0840dc797b3",
+              "name": "resource",
+              "value": "beledci.az",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        992,
+        0
+      ],
+      "id": "29b00bcf-f669-4c37-be46-d7be217de31f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6cfe01f5-f43a-418e-ae01-1aa201c0a6fc",
+              "name": "comments",
+              "value": "={{ $json.comments }}",
+              "type": "string"
+            },
+            {
+              "id": "c478cebe-d31f-45d8-8134-e0840dc797b3",
+              "name": "resource",
+              "value": "bildir.az",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        352
+      ],
+      "id": "4b0b9efd-15ea-4cf9-8987-fbe2ec7327e2",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "CustomerComment",
+        "columns": {
+          "column": [
+            {
+              "name": "comments"
+            },
+            {
+              "name": "resource"
+            },
+            {
+              "name": "category"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        192
+      ],
+      "id": "4f1b1964-faf9-41c6-8947-90e0ccbe2a7b",
+      "name": "Create a data table"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1232,
+        160
+      ],
+      "id": "92a58007-0341-44cb-8690-4ed3c5e6174d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "content": "## Future work\n\nSosial media platformalarındakı istifadəçi şərhlərinin yığılması və kateqoriyalara bölünməsi.",
+        "height": 128,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        32
+      ],
+      "id": "c8f6a4b0-cca9-4d88-8a52-a1d765dd8c77",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0903510f-8765-4d38-abb6-98fee4d88c35",
+              "name": "comments",
+              "value": "={{ $json.comments }}",
+              "type": "string"
+            },
+            {
+              "id": "45cf6acc-3b75-41cf-ab3f-baae2e885f4c",
+              "name": "resource",
+              "value": "={{ $json.resource }}",
+              "type": "string"
+            },
+            {
+              "id": "8a34cf20-92fd-4d18-8ea0-375e1a2c486e",
+              "name": "category",
+              "value": "={{ $json.sentimentAnalysis.category }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2144,
+        160
+      ],
+      "id": "9a8436ca-c2bf-4a7c-89b3-7b3eb956e1d4",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1936,
+        128
+      ],
+      "id": "41b26862-cb61-4494-a332-08e0881c59ca",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "value": "TrL6pXdWhz4sUQYO",
+          "mode": "list",
+          "cachedResultName": "CustomerComment",
+          "cachedResultUrl": "/projects/odqu6gN72i3RQhct/datatables/TrL6pXdWhz4sUQYO"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "comments",
+              "keyValue": "={{ $json.comments }}"
+            },
+            {
+              "keyName": "resource",
+              "keyValue": "={{ $json.resource }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2336,
+        160
+      ],
+      "id": "e0e0261f-23ce-45bc-8d83-fa712682c1fd",
+      "name": "If row does not exist"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "TrL6pXdWhz4sUQYO",
+          "mode": "list",
+          "cachedResultName": "CustomerComment",
+          "cachedResultUrl": "/projects/odqu6gN72i3RQhct/datatables/TrL6pXdWhz4sUQYO"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "comments": "={{ $json.comments }}",
+            "resource": "={{ $json.resource }}",
+            "category": "={{ $json.category }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "comments",
+              "displayName": "comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "resource",
+              "displayName": "resource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2512,
+        160
+      ],
+      "id": "81671987-c672-43ea-9e09-dd097c523f64",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "TrL6pXdWhz4sUQYO",
+          "mode": "list",
+          "cachedResultName": "CustomerComment",
+          "cachedResultUrl": "/projects/odqu6gN72i3RQhct/datatables/TrL6pXdWhz4sUQYO"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        736
+      ],
+      "id": "d327762e-98a0-42d8-9a38-0159580f7e65",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -352,
+        736
+      ],
+      "id": "944af66b-fb31-4a53-a622-be2f1c7125d1",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        736
+      ],
+      "id": "6605f8bd-9aae-42d0-b83e-8e26d59ad30d",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "data = _items[0][\"json\"][\"data\"]\n\ntable_rows = \"\".join(\n    f\"<tr><td>{item['comments']}</td><td>{item['category']}</td></tr>\"\n    for item in data\n)\n\n# build full table\ntable = f\"\"\"\n<table>\n    <tr>\n        <th>Comments</th>\n        <th>Category</th>\n    </tr>\n    {table_rows}\n</table>\n\"\"\"\n\nreturn [{\n    \"json\": {\n        \"table\": table,\n    }\n}]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        736
+      ],
+      "id": "375570f7-5b27-4c63-8f51-211d157de777",
+      "name": "Code in Python"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>My HTML document</title>\n\n  <style>\n    .container {\n      background-color: #ffffff;\n      text-align: center;\n      padding: 16px;\n      border-radius: 8px;\n    }\n\n    h1 {\n      color: #ff6d5a;\n      font-size: 24px;\n      font-weight: bold;\n      padding: 8px;\n    }\n\n    h2 {\n      color: #909399;\n      font-size: 18px;\n      font-weight: bold;\n      padding: 8px;\n    }\n\n    table {\n      width: 100%;\n      border-collapse: collapse;\n      margin-top: 16px;\n    }\n\n    th, td {\n      border: 1px solid #ddd;\n      padding: 8px;\n    }\n\n    th {\n      background-color: #f5f7fa;\n      font-weight: bold;\n    }\n  </style>\n</head>\n\n<body>\n  <div class=\"container\">\n    {{ $json.table }}\n  </div>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        736
+      ],
+      "id": "3f96b0b1-766b-4a96-aee7-b5b66832b755",
+      "name": "HTML3"
+    },
+    {
+      "parameters": {
+        "content": "## Sending information\n\nSend mail to the employees\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        544
+      ],
+      "id": "b2a74d5c-e7c0-44db-94ab-c92d447b846e",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "sendTo": "rustamov37.03@gmail.com",
+        "subject": "Result of comment",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        736
+      ],
+      "id": "d07483fb-d048-4033-9dfe-af12ea06e8e2",
+      "name": "Send a message",
+      "webhookId": "74780390-83f7-4d95-bc0c-67a06c761f14",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "G8NPCb2liGXoVzgH",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Create a data table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "HTML2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create a data table": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "If row does not exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If row does not exist": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        []
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code in Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python": {
+      "main": [
+        [
+          {
+            "node": "HTML3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML3": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6829e03d-0c1c-4b4b-9299-1f48d515e494",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "355c5b3aa2b01ac0e6ea93a730e74bdad34d2f2bab261eddbbab50bf028589cc"
+  },
+  "id": "RRUpYlE1nbKnC54N",
+  "tags": []
+}
