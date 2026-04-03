@@ -83,6 +83,3 @@ The system was evaluated under increasing non-target noise:
 - Sensitive to high noise levels  
 - Synthetic dataset limits real-world generalization  
 - No explicit noise-robust training techniques used  
-
-# Predict
-python predict.py --input sample.wav
